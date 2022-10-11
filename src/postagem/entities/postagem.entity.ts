@@ -21,6 +21,6 @@ export class Postagem {
     @ManyToOne(() => Tema, (tema) => tema.postagem, {
         onDelete: "CASCADE"
     })
-
     tema: Tema
+
 }

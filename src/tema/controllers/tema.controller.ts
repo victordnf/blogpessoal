@@ -1,74 +1,45 @@
-import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { DeleteResult, ILike, Repository } from "typeorm";
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, ParseIntPipe, Post, Put } from "@nestjs/common";
 import { Tema } from "../entities/tema.entity";
+import { TemaService } from "../service/tema.service";
 
-@Injectable()
-export class TemaService {
-    constructor(
-        @InjectRepository(Tema)
-        private temaRepository: Repository<Tema>
-    ) { }
+@Controller("/tema")
+export class TemaController {
+    constructor(private readonly temaService: TemaService) { }
 
-    async findAll(): Promise<Tema[]> {
-        return await this.temaRepository.find({
-            relations: {
-                postagem: true
-            }
-        });
+    @Get()
+    @HttpCode(HttpStatus.OK)
+    findAll(): Promise<Tema[]> {
+        return this.temaService.findAll();
     }
 
-    async findById(id: number): Promise<Tema> {
-
-        let tema = await this.temaRepository.findOne({
-            where: {
-                id
-            },
-            relations: {
-                postagem: true
-            }
-        });
-
-        if (!tema)
-            throw new HttpException('Tema não encontrado!', HttpStatus.NOT_FOUND);
-
-        return tema;
+    @Get('/:id')
+    @HttpCode(HttpStatus.OK)
+    findById(@Param('id', ParseIntPipe) id: number): Promise<Tema> {
+        return this.temaService.findById(id);
     }
 
-    async findByDescricao(descricao: string): Promise<Tema[]> {
-        return await this.temaRepository.find({
-            where: {
-                descricao: ILike(`%${descricao}%`)
-            },
-            relations: {
-                postagem: true
-            }
-        })
+    @Get('/descricao/:descricao')
+    @HttpCode(HttpStatus.OK)
+    findBydescricao(@Param('descricao') descricao: string): Promise<Tema[]> {
+        return this.temaService.findByDescricao(descricao);
     }
 
-    async create(Tema: Tema): Promise<Tema> {
-        return await this.temaRepository.save(Tema);
+    @Post()
+    @HttpCode(HttpStatus.CREATED)
+    create(@Body() Tema: Tema): Promise<Tema> {
+        return this.temaService.create(Tema);
     }
 
-    async update(tema: Tema): Promise<Tema> {
-
-        let buscaTema = await this.findById(tema.id);
-
-        if (!buscaTema || !tema.id)
-            throw new HttpException('Tema não encontrado!', HttpStatus.NOT_FOUND);
-
-        return await this.temaRepository.save(tema);
+    @Put()
+    @HttpCode(HttpStatus.OK)
+    update(@Body() Tema: Tema): Promise<Tema> {
+        return this.temaService.update(Tema);
     }
 
-    async delete(id: number): Promise<DeleteResult> {
-
-        let buscaTema = await this.findById(id);
-
-        if (!buscaTema)
-            throw new HttpException('Tema não encontrado!', HttpStatus.NOT_FOUND);
-
-        return await this.temaRepository.delete(id);
-
+    @Delete('/:id')
+    @HttpCode(HttpStatus.NO_CONTENT)
+    delete(@Param('id', ParseIntPipe) id: number){
+        return this.temaService.delete(id);
     }
 
 }
