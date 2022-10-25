@@ -1,4 +1,4 @@
-import { Controller, Module } from "@nestjs/common";
+import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { TemaService } from "src/tema/service/tema.service";
 import { TemaModule } from "src/tema/tema.module";
